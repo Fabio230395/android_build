@@ -75,12 +75,12 @@ function check_product()
     fi
 
     if (echo -n $1 | grep -q -e "^cm_") ; then
-       CM_BUILD=$(echo -n $1 | sed -e 's/^cm_//g')
-       export BUILD_NUMBER=$((date +%s%N ; echo $CM_BUILD; hostname) | openssl sha1 | sed -e 's/.*=//g; s/ //g' | cut -c1-10)
+       LIQUID_BUILD=$(echo -n $1 | sed -e 's/^cm_//g')
+       export BUILD_NUMBER=$((date +%s%N ; echo $LIQUID_BUILD; hostname) | openssl sha1 | sed -e 's/.*=//g; s/ //g' | cut -c1-10)
     else
-       CM_BUILD=
+       LIQUID_BUILD=
     fi
-    export CM_BUILD
+    export LIQUID_BUILD
 
         TARGET_PRODUCT=$1 \
         TARGET_BUILD_VARIANT= \
@@ -536,7 +536,7 @@ function breakfast()
     CM_DEVICES_ONLY="true"
     unset LUNCH_MENU_CHOICES
     add_lunch_combo full-eng
-    for f in `/bin/ls vendor/cm/vendorsetup.sh 2> /dev/null`
+    for f in `/bin/ls vendor/liquid/vendorsetup.sh 2> /dev/null`
         do
             echo "including $f"
             . $f
@@ -718,8 +718,8 @@ function tapas()
 function eat()
 {
     if [ "$OUT" ] ; then
-        MODVERSION=$(get_build_var CM_VERSION)
-        ZIPFILE=cm-$MODVERSION.zip
+        MODVERSION=$(get_build_var LIQUID_VERSION)
+        ZIPFILE=liquid-$MODVERSION.zip
         ZIPPATH=$OUT/$ZIPFILE
         if [ ! -f $ZIPPATH ] ; then
             echo "Nothing to eat"
@@ -734,7 +734,7 @@ function eat()
             done
             echo "Device Found.."
         fi
-    if (adb shell cat /system/build.prop | grep -q "ro.cm.device=$CM_BUILD");
+    if (adb shell cat /system/build.prop | grep -q "ro.liquid.device=$LIQUID_BUILD");
     then
         # if adbd isn't root we can't write to /cache/recovery/
         adb root
@@ -756,7 +756,7 @@ EOF
     fi
     return $?
     else
-        echo "The connected device does not appear to be $CM_BUILD, run away!"
+        echo "The connected device does not appear to be $LIQUID_BUILD, run away!"
     fi
 }
 
@@ -1973,7 +1973,7 @@ function installboot()
     sleep 1
     adb wait-for-online shell mount /system 2>&1 > /dev/null
     adb wait-for-online remount
-    if (adb shell cat /system/build.prop | grep -q "ro.cm.device=$CM_BUILD");
+    if (adb shell cat /system/build.prop | grep -q "ro.liquid.device=$LIQUID_BUILD");
     then
         adb push $OUT/boot.img /cache/
         for i in $OUT/system/lib/modules/*;
@@ -1984,7 +1984,7 @@ function installboot()
         adb shell chmod 644 /system/lib/modules/*
         echo "Installation complete."
     else
-        echo "The connected device does not appear to be $CM_BUILD, run away!"
+        echo "The connected device does not appear to be $LIQUID_BUILD, run away!"
     fi
 }
 
@@ -2018,13 +2018,13 @@ function installrecovery()
     sleep 1
     adb wait-for-online shell mount /system 2>&1 >> /dev/null
     adb wait-for-online remount
-    if (adb shell cat /system/build.prop | grep -q "ro.cm.device=$CM_BUILD");
+    if (adb shell cat /system/build.prop | grep -q "ro.liquid.device=$LIQUID_BUILD");
     then
         adb push $OUT/recovery.img /cache/
         adb shell dd if=/cache/recovery.img of=$PARTITION
         echo "Installation complete."
     else
-        echo "The connected device does not appear to be $CM_BUILD, run away!"
+        echo "The connected device does not appear to be $LIQUID_BUILD, run away!"
     fi
 }
 
@@ -2398,7 +2398,7 @@ function dopush()
         echo "Device Found."
     fi
 
-    if (adb shell cat /system/build.prop | grep -q "ro.cm.device=$CM_BUILD") || [ "$FORCE_PUSH" == "true" ];
+    if (adb shell cat /system/build.prop | grep -q "ro.liquid.device=$LIQUID_BUILD") || [ "$FORCE_PUSH" == "true" ];
     then
     # retrieve IP and PORT info if we're using a TCP connection
     TCPIPPORT=$(adb devices | egrep '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+[^0-9]+' \
@@ -2501,7 +2501,7 @@ EOF
     rm -f $OUT/.log
     return 0
     else
-        echo "The connected device does not appear to be $CM_BUILD, run away!"
+        echo "The connected device does not appear to be $LIQUID_BUILD, run away!"
     fi
 }
 
@@ -2652,7 +2652,7 @@ unset f
 
 # Add completions
 check_bash_version && {
-    dirs="sdk/bash_completion vendor/cm/bash_completion"
+    dirs="sdk/bash_completion vendor/liquid/bash_completion"
     for dir in $dirs; do
     if [ -d ${dir} ]; then
         for f in `/bin/ls ${dir}/[a-z]*.bash 2> /dev/null`; do
